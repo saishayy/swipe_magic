@@ -1,0 +1,58 @@
+# Automatic labeling rules for pull requests
+
+# Documentation changes
+documentation:
+  - '**/*.md'
+  - 'docs/**/*'
+
+# Core library changes
+library:
+  - 'lib/**/*.dart'
+
+# Example changes
+example:
+  - 'example/**/*'
+
+# Tests
+tests:
+  - 'test/**/*'
+  - '**/*_test.dart'
+
+# Configuration files
+configuration:
+  - 'pubspec.yaml'
+  - 'pubspec.lock'
+  - 'analysis_options.yaml'
+  - '.gitignore'
+  - '.metadata'
+
+# CI/CD changes
+ci:
+  - '.github/**/*'
+
+# Dependencies
+dependencies:
+  - 'pubspec.yaml'
+  - 'pubspec.lock'
+
+# Bug fixes (based on branch name or title)
+bug:
+  - head-branch: ['^fix/', '^hotfix/', '^bugfix/']
+  - title: ['fix', 'bug', 'issue']
+
+# Features
+feature:
+  - head-branch: ['^feature/', '^feat/']
+  - title: ['feature', 'feat', 'add']
+
+# Breaking changes
+breaking:
+  - title: ['breaking', 'major']
+
+# Minor changes
+minor:
+  - title: ['minor', 'update', 'improve']
+
+# Patch changes  
+patch:
+  - title: ['patch', 'fix', 'bug']

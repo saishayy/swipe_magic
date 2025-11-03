@@ -1,0 +1,102 @@
+name: 🔍 Pull Request Checks
+
+on:
+  pull_request:
+    branches: [ main, master ]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+env:
+  FLUTTER_VERSION: "3.19.0"
+
+jobs:
+  pr-checks:
+    name: 🔍 PR Quality Checks
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 📦 Install Dependencies
+        run: flutter pub get
+
+      - name: 📋 Run Analysis
+        run: flutter analyze
+
+      - name: 🧪 Check Formatting
+        run: dart format --set-exit-if-changed .
+
+      - name: 🧪 Run Tests
+        run: flutter test
+
+      - name: 📊 Check Test Coverage
+        run: |
+          flutter test --coverage
+          # Check if coverage is above 80%
+          lcov --summary coverage/lcov.info
+
+      - name: 🔍 Check pub.dev Score
+        run: dart pub publish --dry-run
+
+      - name: 📝 Check CHANGELOG
+        run: |
+          if git diff --name-only origin/master...HEAD | grep -q "lib/\|pubspec.yaml"; then
+            if ! git diff --name-only origin/master...HEAD | grep -q "CHANGELOG.md"; then
+              echo "❌ CHANGELOG.md must be updated when lib/ or pubspec.yaml changes"
+              exit 1
+            fi
+            echo "✅ CHANGELOG.md has been updated"
+          fi
+
+      - name: 📋 Check Version Bump
+        run: |
+          if git diff --name-only origin/master...HEAD | grep -q "pubspec.yaml"; then
+            # Extract version from pubspec.yaml
+            NEW_VERSION=$(grep "^version:" pubspec.yaml | cut -d' ' -f2)
+            git checkout origin/master -- pubspec.yaml
+            OLD_VERSION=$(grep "^version:" pubspec.yaml | cut -d' ' -f2)
+            git checkout - -- pubspec.yaml
+            
+            if [ "$NEW_VERSION" = "$OLD_VERSION" ]; then
+              echo "❌ Version must be bumped when pubspec.yaml changes"
+              exit 1
+            fi
+            echo "✅ Version bumped from $OLD_VERSION to $NEW_VERSION"
+          fi
+
+  pr-size-labeler:
+    name: 🏷️ PR Size Labeler
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏷️ Label PR by Size
+        uses: codelytv/pr-size-labeler@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          xs_label: 'size/xs'
+          xs_max_size: 10
+          s_label: 'size/s'
+          s_max_size: 100
+          m_label: 'size/m'
+          m_max_size: 500
+          l_label: 'size/l'
+          l_max_size: 1000
+          xl_label: 'size/xl'
+          fail_if_xl: false
+
+  pr-labeler:
+    name: 🏷️ Auto Label PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏷️ Auto Label PR
+        uses: actions/labeler@v4
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

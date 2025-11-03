@@ -1,0 +1,76 @@
+name: 🚀 Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  FLUTTER_VERSION: "3.19.0"
+
+jobs:
+  create-release:
+    name: 🎉 Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷️ Get Version from Tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: 📝 Generate Changelog
+        id: changelog
+        run: |
+          if [ -f CHANGELOG.md ]; then
+            # Extract changelog for this version
+            sed -n "/## \[${{ steps.version.outputs.VERSION }}\]/,/## \[/p" CHANGELOG.md | sed '$ d' > release_notes.md
+            # If empty, use a default message
+            if [ ! -s release_notes.md ]; then
+              echo "Release ${{ steps.version.outputs.VERSION }}" > release_notes.md
+            fi
+          else
+            echo "Release ${{ steps.version.outputs.VERSION }}" > release_notes.md
+          fi
+
+      - name: 🎉 Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.version.outputs.VERSION }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+
+  publish-to-pub:
+    name: 📤 Publish to pub.dev
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 📦 Install Dependencies
+        run: flutter pub get
+
+      - name: 🔍 Validate Package
+        run: dart pub publish --dry-run
+
+      - name: 📤 Publish to pub.dev
+        uses: k-paxian/dart-package-publisher@v1.6
+        with:
+          credentialJson: ${{ secrets.PUB_CREDENTIALS }}
+          flutter: true
+          skipTests: true

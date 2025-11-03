@@ -1,0 +1,93 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for swipe_magic
+title: "[FEATURE] "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! 🚀
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please check all that apply
+      options:
+        - label: I searched existing issues and didn't find a duplicate
+          required: true
+        - label: I read the documentation and API reference
+          required: true
+        - label: This feature request is not already covered by existing functionality
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What's the use case?
+      placeholder: I'm trying to achieve... but currently...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see
+      placeholder: I would like to be able to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered alternative solutions or workarounds?
+      placeholder: I've tried... but it doesn't work because...
+
+  - type: textarea
+    id: api
+    attributes:
+      label: API Design (if applicable)
+      description: If this is an API change, please describe the proposed API
+      render: dart
+      placeholder: |
+        // Proposed API usage:
+        SwipeCards(
+          newProperty: true,
+          // ...
+        )
+
+  - type: dropdown
+    id: breaking
+    attributes:
+      label: Breaking Change
+      description: Would this be a breaking change?
+      options:
+        - "No, this is backwards compatible"
+        - "Yes, this would be a breaking change"
+        - "I'm not sure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - "Low - Nice to have"
+        - "Medium - Would be helpful"
+        - "High - Important for my use case"
+        - "Critical - Blocking my project"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, mockups, or information about the feature request here

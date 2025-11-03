@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussions
+    url: https://github.com/YourUsername/swipe_magic/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 📖 Documentation
+    url: https://pub.dev/packages/swipe_magic
+    about: Read the official documentation and API reference
+  - name: 💡 Feature Ideas Discussion
+    url: https://github.com/YourUsername/swipe_magic/discussions/categories/ideas
+    about: Share and discuss feature ideas before creating a formal request
